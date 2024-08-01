@@ -1,6 +1,5 @@
 package enigma.to_do_list.utils.specification;
 
-import enigma.to_do_list.model.Category;
 import enigma.to_do_list.model.UserEntity;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;

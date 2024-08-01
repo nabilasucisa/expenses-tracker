@@ -20,7 +20,7 @@ public class ErrorHandler {
 //            message = "balance cannot be null";
 //        }
 
-        return Response.renderJson(null, message, status);
+        return Response.renderJson2(message, status);
     }
 
 
@@ -32,7 +32,7 @@ public class ErrorHandler {
 //        if (e.getMessage().contains("name")) {
 //            message = "name cannot be blank";
 //        }
-        return Response.renderJson(null, message, status);
+        return Response.renderJson2(message, status);
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -49,6 +49,6 @@ public class ErrorHandler {
 //        } else if (e.getMessage().contains("rent with id")) {
 //            message = "Rent not found";
 //        }
-        return Response.renderJson(null, message, status);
+        return Response.renderJson2(message, status);
     }
 }

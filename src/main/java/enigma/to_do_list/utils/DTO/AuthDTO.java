@@ -13,17 +13,24 @@ public class AuthDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class RegisterRequest {
-        @NotBlank(message = "Write your name!")
-        private String name;
-
-        @NotBlank(message = "Write your email!")
+        @NotBlank(message = "Email is required!")
         private String email;
 
-        @NotBlank(message = "Write your username!")
+        @NotBlank(message = "Username is required!")
         private String username;
 
-        @NotBlank(message = "Write your password!")
+        @NotBlank(message = "Password is required!")
         private String password;
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class RegisterResponse {
+        private Integer id;
+        private String email;
+        private String username;
+
     }
 
     @Data
@@ -31,10 +38,10 @@ public class AuthDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class LoginRequest {
-        @NotBlank(message = "Write your username!")
-        private String username;
+        @NotBlank(message = "Email is required!")
+        private String email;
 
-        @NotBlank(message = "Write your password!")
+        @NotBlank(message = "Password is required!")
         private String password;
     }
 
@@ -42,8 +49,28 @@ public class AuthDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class AuthenticationResponse {
-        private String token;
-        private String message;
+    public static class RefreshRequest {
+        @NotBlank(message = "Refresh Token is required!")
+        private String refresh_token;
     }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class AuthenticationResponse {
+        private String accessToken;
+        private String refreshToken;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class RefreshResponse {
+        private String accessToken;
+    }
+
+
+
 }

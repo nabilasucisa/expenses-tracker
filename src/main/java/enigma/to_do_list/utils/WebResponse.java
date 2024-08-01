@@ -1,5 +1,6 @@
 package enigma.to_do_list.utils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 @Getter
@@ -10,6 +11,8 @@ import lombok.*;
 
 public class WebResponse<T> {
     private String status;
+    private T body;
+
+    @JsonIgnore
     private String message;
-    private T data;
 }

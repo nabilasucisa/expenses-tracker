@@ -8,17 +8,15 @@ import java.util.List;
 @Getter
 @Setter
 public class PageResponse<T>{
-    private List<T> content;
-    private Long totalElements;
+    private List<T> items;
+    private Long totalItems;
+    private Integer currentPage;
     private Integer totalPages;
-    private Integer page;
-    private Integer size;
 
     public PageResponse(Page<T> page) {
-        this.content = page.getContent();
-        this.totalElements = page.getTotalElements();
+        this.items = page.getContent();
+        this.totalItems = page.getTotalElements();
+        this.currentPage = page.getNumber();
         this.totalPages = page.getTotalPages();
-        this.page = page.getNumber();
-        this.size = page.getSize();
     }
 }

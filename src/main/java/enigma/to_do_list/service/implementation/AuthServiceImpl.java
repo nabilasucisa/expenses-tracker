@@ -11,11 +11,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -35,39 +40,56 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("User with this email already exists");
         }
 
-        var user = UserEntity.builder()
-                .name(request.getName())
-                .email(request.getEmail())
+        UserEntity user = UserEntity.builder()
                 .username(request.getUsername())
+                .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .roles(List.of(Role.ROLE_USER))
+                .roles(Role.ROLE_USER)
+                .createdAt(LocalDate.now())
                 .build();
 
         UserEntity savedUser = repository.save(user);
-
         return Response.renderJson(
-                savedUser,
-                "User registered successfully",
-                HttpStatus.CREATED
+                HttpStatus.CREATED,
+                savedUser
         );
     }
 
     @Override
     public AuthDTO.AuthenticationResponse login(AuthDTO.LoginRequest request) {
-        UserEntity user = repository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found or username incorrect"));
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
+            String accessToken = jwtService.generateAccessToken(userDetails);
+            String refreshToken = jwtService.generateRefreshToken(userDetails);
+            return AuthDTO.AuthenticationResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
+        } catch (BadCredentialsException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password!");
+        }
+    }
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
-
-        var jwtToken = jwtService.generateToken((UserDetails) user);
-        return AuthDTO.AuthenticationResponse.builder()
-                .token(jwtToken)
-                .message("Login success for User_ID = " + user.getId())
-                .build();
+    @Override
+    public AuthDTO.RefreshResponse refresh(AuthDTO.RefreshRequest request) {
+        if (jwtService.validateRefreshToken(request.getRefresh_token())) {
+            String username = jwtService.extractUsername(request.getRefresh_token());
+            UserDetails userDetails = repository.findByUsername(username)
+                    .map(user -> User.withUsername(user.getUsername())
+                            .password(user.getPassword())
+                            .authorities(user.getRoles())
+                            .build())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            String accessToken = jwtService.generateAccessToken(userDetails);
+            return AuthDTO.RefreshResponse.builder()
+                    .accessToken(accessToken)
+                    .build();
+        } else {
+            throw new RuntimeException("Invalid refresh token");
+        }
     }
 }
+
