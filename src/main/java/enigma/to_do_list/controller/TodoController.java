@@ -35,9 +35,10 @@ public class TodoController {
     @GetMapping
     public ResponseEntity<?> getAll(@PageableDefault(size = 10) Pageable pageable,
                                     @RequestParam(required = false) String status,
-                                    @RequestParam(required = false) Date due_date,
+                                    @RequestParam(defaultValue = "dueDate", required = false) String sortBy,
+                                    @RequestParam(required = false) String order,
                                     Authentication authentication) {
-        Page<Todo> task = todoService.getAll(pageable, status, due_date, authentication);
+        Page<Todo> task = todoService.getAll(pageable, status, sortBy, order, authentication);
         PageResponse<Todo> result = new PageResponse<>(task);
         return Response.renderJson(
                 HttpStatus.OK,

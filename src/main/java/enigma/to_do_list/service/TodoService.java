@@ -12,7 +12,7 @@ import java.util.Date;
 
 public interface TodoService {
     Todo create(TodoCreateDTO request, Authentication authentication);
-    Page<Todo> getAll(Pageable pageable, String status, Date due_date, Authentication authentication);
+    Page<Todo> getAll(Pageable pageable, String status, String sortBy, String order, Authentication authentication);
     Todo getOne(Integer id, Authentication authentication);
     Todo update(Integer id, TodoUpdateDTO request, Authentication authentication);
     Todo updateStatus(TodoUpdateDTO request, Integer id, Authentication authentication);

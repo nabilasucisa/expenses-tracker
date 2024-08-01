@@ -40,15 +40,15 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public Page<Todo> getAll(Pageable pageable, String status, Date due_date, Authentication auth) {
+    public Page<Todo> getAll(Pageable pageable, String status, String sortBy, String order, Authentication auth) {
         UserEntity user = userService.getByEmail(auth.getName());
         Integer id = user.getId();
 
         if (auth.getAuthorities().stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"))) {
-            Specification<Todo> specification = TodoSpecification.getSpecification(null, status, due_date);
+            Specification<Todo> specification = TodoSpecification.getSpecification(null, status, sortBy, order);
             return todoRepository.findAll(specification, pageable);
         } else {
-            Specification<Todo> specification = TodoSpecification.getSpecification(id, status, due_date);
+            Specification<Todo> specification = TodoSpecification.getSpecification(id, status, sortBy, order);
             return todoRepository.findAll(specification, pageable);
         }
     }

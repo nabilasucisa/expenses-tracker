@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 public class TodoSpecification {
-    public static Specification<Todo> getSpecification(Integer userId, String status, Date due_date) {
+    public static Specification<Todo> getSpecification(Integer userId, String status, String sortBy, String order) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -21,7 +21,15 @@ public class TodoSpecification {
                 predicates.add(criteriaBuilder.equal(root.get("user").get("id"), userId));
             }
 
-            query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+            query.where(predicates.toArray(new Predicate[0]));
+
+            if (sortBy != null && !sortBy.isEmpty()) {
+                if ("desc".equalsIgnoreCase(order)) {
+                    query.orderBy(criteriaBuilder.desc(root.get(sortBy)));
+                } else {
+                    query.orderBy(criteriaBuilder.asc(root.get(sortBy)));
+                }
+            }
 
             return query.getRestriction();
         };
